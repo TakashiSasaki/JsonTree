@@ -53,6 +53,7 @@ function Summary() {
     fillArray(this.indexCounts);
     fillArray(this.arrayDepths);
     fillArray(this.objectDepths);
+    this.checkIntegrity();
   }
 
   this.traverseArray = function(array, arrayDepth, objectDepth){
@@ -96,6 +97,31 @@ function Summary() {
       throw "traverseObject: unexpected type in object.";
     }
   }//traverseObject
+
+  this.checkIntegrity = function(){
+    var nArrayLeaf = this.indexCounts.reduce(function(x,y){
+      return x + y;
+    });
+    var nObjectLeaf = 0;
+    for(var i in this.propertyCounts) {
+      nObjectLeaf += this.propertyCounts[i];
+    }
+    if(this.leafCount != nObjectLeaf + nArrayLeaf) {
+      throw "checkIntegrity: nObjectLeaf + nArrayLeaf != leafCount";
+    }
+    var nLeafByArrayDepth = this.arrayDepths.reduce(function(x,y){
+      return x + y;
+    });
+    if(this.leafCount != nLeafByArrayDepth) {
+      throw "checkIntegrity: nLeafByArrayDepth != leafCount";
+    }
+    var nLeafByObjectDepth = this.objectDepths.reduce(function(x,y) {
+      return x + y;
+    });
+    if(this.leafCount != nLeafByObjectDepth) {
+      throw "checkIntegrity: nLeafByObjectDepth != leafCount";
+    }
+  }
 
 }//JsonTreeSummary
 
