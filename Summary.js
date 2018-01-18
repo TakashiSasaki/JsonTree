@@ -1,6 +1,6 @@
 "use strict";
 
-function JsonTreeSummary() { 
+function Summary() { 
 
   this.primitive = {
     "number": true,
@@ -93,5 +93,5 @@ function JsonTreeSummary() {
 
 }//JsonTreeSummary
 
-exports["JsonTreeSummary"] = JsonTreeSummary;
+exports["Summary"] = Summary;
 

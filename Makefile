@@ -1,5 +1,5 @@
 .PHONY: test
 
 test:
-	node JsonTreeTest.js
+	node SummaryTest.js
 
