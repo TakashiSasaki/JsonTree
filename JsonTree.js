@@ -1,75 +1,97 @@
 "use strict";
 
-var primitive = {
-  "number": true,
-  "string": true,
-  "boolean": true,
-}
+function JsonTreeSummary() { 
 
-var indexCount = [];
-var propertyCount = {};
-var arrayDepth = [];
-var objectDepth = [];
-var leafCount = 0;
-
-function parse(tree){
-  if(typeof tree in primitive) {
-    throw "parse: expects object or array.";
+  this.primitive = {
+    "number": true,
+    "string": true,
+    "boolean": true,
   }
 
-  for(var i in tree) {
-    if(tree[i] === null || typeof tree[i] in primitive) continue;
-    if(tree instanceof Array) {
-      traverseArray(tree, 1, 0);
-      continue;
-    } 
-    if(tree instanceof Object) {
-      traverseObject(tree, 0, 1);
-      continue;
-    }
-    throw "parse: can parse only array or object.";
-  }
-}
+  this.indexCounts = [];
+  this.propertyCounts = {};
+  this.arrayDepths = [];
+  this.objectDepths = [];
+  this.leafCount = 0;
 
-function traverseArray(array, currentArrayDepth, currentObjectDepth){
-  for(var i in array) {
-    if(array[i] === null || typeof array[i] in primitive) {
-      leafCount += 1;
-      indexCount[i] += 1;
-      arrayDepth[currentArrayDepth] += 1;
-      continue;
+  function incrementArray(array, index){
+    if(typeof array[index] === "undefined") {
+      array[index] = 1;
+    } else {
+      array[index] += 1;
     }
-    if(array[i] instanceof Array) {
-      traverseArray(array[i], currentArrayDepth+1, currentObjectDepth);
-      continue;
-    }
-    if(array[i] instanceof Object) {
-      traverseObject(array[i], currentArrayDepth, currentObjectDepth+1);
-      continue;
-    }
-    throw "traverseArray: unexpected type in array.";
   }
-}
 
-function traverseObject(object, currentArrayDepth, currentObjectDepth){
-  for(var i in object) {
-    if(object[i] === null || typeof object[i] in primitive) {
-      leafCount += 1;
-      propertyCount[i] += 1;
-      objectDepth[currentObjectDepth] += 1;
-      continue; 
+  function incrementObject(object, property) {
+    if(property in object) {
+      object[property] += 1;
+    } else {
+      object[property] = 1;
     }
-    if(object[i] instanceof Array) {
-      traverseArray(object[i], currentArrayDepth+1, currentObjectDepth);
-      continue;
-    }
-    if(object[i] instanceof Object) {
-      traverseObject(object[i], currentArrayDepth, currentObjectDepth+1);
-      continue;
-    }
-    throw "traverseObject: unexpected type in object.";
   }
-}
 
-exports["parse"] =  parse;
+  this.parse = function (tree){
+    if(typeof tree in this.primitive) {
+      throw "parse: expects object or array.";
+    }
+
+    for(var i in tree) {
+      if(tree[i] === null || typeof tree[i] in this.primitive) continue;
+      if(tree instanceof Array) {
+        this.traverseArray(tree, 1, 0);
+        continue;
+      } 
+      if(tree instanceof Object) {
+        this.traverseObject(tree, 0, 1);
+        continue;
+      }
+      throw "parse: can parse only array or object.";
+    }
+  }
+
+  this.traverseArray = function(array, arrayDepth, objectDepth){
+    for(var i in array) {
+      if(array[i] === null || typeof array[i] in this.primitive) {
+        this.leafCount += 1;
+        incrementArray(this.indexCounts, i);
+        incrementArray(this.arrayDepths, arrayDepth);
+        incrementArray(this.objectDepths, objectDepth);
+        continue;
+      }
+      if(array[i] instanceof Array) {
+        this.traverseArray(array[i], arrayDepth+1, objectDepth);
+        continue;
+      }
+      if(array[i] instanceof Object) {
+        this.traverseObject(array[i], arrayDepth, objectDepth+1);
+        continue;
+      }
+      throw "traverseArray: unexpected type in array.";
+    }
+  }
+
+  this.traverseObject = function (object, arrayDepth, objectDepth){
+    for(var i in object) {
+      if(object[i] === null || typeof object[i] in this.primitive) {
+        this.leafCount += 1;
+        incrementObject(this.propertyCounts, i);
+        incrementArray(this.arrayDepths, arrayDepth);
+        incrementArray(this.objectDepths, objectDepth);
+        continue; 
+      }
+      if(object[i] instanceof Array) {
+        this.traverseArray(object[i], arrayDepth+1, objectDepth);
+        continue;
+      }
+      if(object[i] instanceof Object) {
+        this.traverseObject(object[i], arrayDepth, objectDepth+1);
+        continue;
+      }
+      throw "traverseObject: unexpected type in object.";
+    }
+  }//traverseObject
+
+}//JsonTreeSummary
+
+exports["JsonTreeSummary"] = JsonTreeSummary;
 
