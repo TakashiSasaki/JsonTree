@@ -1,4 +1,5 @@
 var http = require("https");
+var parse = require("csv-parse/lib/sync");
 
 var url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFAs12jcTQbXPN3pkZ0-qDV1iAmQ8a438nO8H2mtNri47NI_znqcX_UaxnhjDMUxvi38cq8b9etStk/pub?gid=0&single=true&output=csv";
 
@@ -10,7 +11,7 @@ var req = http.get(url, function(response) {
    });
 
    response.on('end', function() {
-      console.log(csv);
+      console.log(parse(csv));
    });
 });
 
