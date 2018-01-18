@@ -8,11 +8,13 @@ function Summary() {
     "boolean": true,
   }
 
-  this.indexCounts = [];
-  this.propertyCounts = {};
-  this.arrayDepths = [];
-  this.objectDepths = [];
-  this.leafCount = 0;
+  this.init = function(){
+    this.indexCounts = [];
+    this.propertyCounts = {};
+    this.arrayDepths = [];
+    this.objectDepths = [];
+    this.leafCount = 0;
+  }
 
   function incrementArray(array, index){
     if(typeof array[index] === "undefined") {
@@ -31,6 +33,7 @@ function Summary() {
   }
 
   this.parse = function (tree){
+    this.init();
     if(typeof tree in this.primitive) {
       throw "parse: expects object or array.";
     }
@@ -47,6 +50,9 @@ function Summary() {
       }
       throw "parse: can parse only array or object.";
     }
+    fillArray(this.indexCounts);
+    fillArray(this.arrayDepths);
+    fillArray(this.objectDepths);
   }
 
   this.traverseArray = function(array, arrayDepth, objectDepth){
@@ -93,5 +99,27 @@ function Summary() {
 
 }//JsonTreeSummary
 
+function fillArray(array){
+  for(var i=0; i<array.length; ++i) {
+    if(typeof array[i] === "undefined") {
+      array[i] = 0;
+    }
+  }
+  return array;
+}
+
+var summary = new Summary();
+
+
 exports["Summary"] = Summary;
+exports["computeSummary"] = function(tree){
+  summary.parse(tree);
+  return {
+    indexCounts   : summary.indexCounts,
+    propertyCounts: summary.propertyCounts,
+    arrayDepths   : summary.arrayDepths,
+    objectDepths  : summary.objectDepths,
+    leafCount     : summary.leafCount
+  }
+};
 

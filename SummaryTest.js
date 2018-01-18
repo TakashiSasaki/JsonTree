@@ -21,3 +21,4 @@ console.log(summary.indexCounts);
 console.log(summary.propertyCounts);
 console.log(summary.leafCount);
 
+console.log(JsonTree.computeSummary(testObject));
